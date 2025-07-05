@@ -16,6 +16,44 @@
     <title>Music Player App</title>
   </head>
   <body>
+    <div class="player">
+      <figure class="audio_Informations">
+        <img id="song_image" class="audio_poster" src="" alt="" />
+        <figcaption id="song_name" class="audio_name"></figcaption>
+        <figcaption id="song_author" class="audio_author"></figcaption>
+      </figure>
+
+      <div id="song_progressBarContainer" class="progress_bar_container">
+        <div class="timers">
+          <span id="song_time_current" class="audio_time">00:00</span>
+          <span id="song_time" class="audio_time">03:20</span>
+        </div>
+        <progress
+          id="song_progress_bar"
+          class="progress_bar"
+          value="40"
+          max="100"
+        />
+      </div>
+
+      <div class="controlsWrapper">
+        <button id="button_prev" class="btn btn--prev">
+          <img
+            src="/Stop_and_play_fill-1.svg"
+            alt="icon of previous arrow pointing left"
+          />
+        </button>
+        <button id="button_play" class="btn btn--playPause">
+          <img src="/Play_fill.svg" alt="icon of play or pause" />
+        </button>
+        <button id="button_next" class="btn btn--next">
+          <img
+            src="/Stop_and_play_fill.svg"
+            alt="icon of previous arrow pointing right"
+          />
+        </button>
+      </div>
+    </div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
