@@ -16,16 +16,22 @@ const songs = [
 ];
 
 let currentSongIndex = 0;
-let audio = new Audio(songs[0].src);
+let audio = new Audio();
 
 const buttonPlayPause = document.getElementById("button_play");
 const buttonPlayPauseImage = document.getElementById("playPauseImage");
 const songCurrentTimeText = document.querySelector("#song_time_current");
-
 const progressBar = document.getElementById("song_progress_bar");
 
+document
+  .getElementById("button_prev")
+  .addEventListener("click", () => handleChangeSong(-1));
+document
+  .getElementById("button_next")
+  .addEventListener("click", () => handleChangeSong(1));
+
 buttonPlayPause.addEventListener("click", playPause);
-audio.addEventListener("timeupdate", updateProgressBar);
+progressBar.addEventListener("click", handleProgressBarClick);
 
 function secondsToMs(duration) {
   duration = Number(duration);
@@ -42,26 +48,22 @@ function secondsToMs(duration) {
   return songTime;
 }
 
-function updateUI() {
-  const currentSong = songs[currentSongIndex];
+function handleChangeSong(changeNumber) {
+  if (changeNumber === -1 && currentSongIndex === 0) return;
+  if (changeNumber === 1 && currentSongIndex === songs.length - 1) return;
 
-  document.querySelector("#song_author").textContent = currentSong.author;
-  document.querySelector("#song_name").textContent = currentSong.title;
+  if (!audio.paused) audio.pause();
 
-  const songImage = document.querySelector("#song_image");
-  songImage.setAttribute("src", currentSong.img);
-  songImage.setAttribute(
-    "alt",
-    `poster of ${currentSong.author} song: ${currentSong.title}`
-  );
+  currentSongIndex += changeNumber;
 
-  document.querySelector("#song_time").textContent = secondsToMs(
-    audio.duration
-  );
-  songCurrentTimeText.textContent = secondsToMs(audio.currentTime);
+  loadSong();
+}
 
-  progressBar.setAttribute("max", audio.duration);
-  progressBar.setAttribute("value", 0);
+function handleProgressBarClick(e) {
+  const x = e.pageX - this.offsetLeft;
+  const clickedValue = (x * this.max) / this.offsetWidth;
+
+  audio.currentTime = clickedValue;
 }
 
 function updateProgressBar() {
@@ -76,10 +78,41 @@ function updateProgressBar() {
   songCurrentTimeText.textContent = secondsToMs(audio.currentTime);
 }
 
-async function playPause() {
-  const isAudioPaused = audio.paused;
+function updateUI() {
+  const currentSong = songs[currentSongIndex];
+  audio.src = currentSong.src;
 
-  if (!isAudioPaused) {
+  document.querySelector("#song_author").textContent = currentSong.author;
+  document.querySelector("#song_name").textContent = currentSong.title;
+
+  const songImage = document.querySelector("#song_image");
+  songImage.setAttribute("src", currentSong.img);
+  songImage.setAttribute(
+    "alt",
+    `poster of ${currentSong.author} song: ${currentSong.title}`
+  );
+  buttonPlayPauseImage.setAttribute("src", "/Play_fill.svg");
+}
+
+function onLoadedAudioData() {
+  document.querySelector("#song_time").textContent = secondsToMs(
+    audio.duration
+  );
+  songCurrentTimeText.textContent = secondsToMs(audio.currentTime);
+
+  progressBar.setAttribute("max", audio.duration);
+  progressBar.setAttribute("value", 0);
+
+  audio.addEventListener("timeupdate", updateProgressBar);
+}
+
+function loadSong() {
+  updateUI();
+  audio.addEventListener("loadeddata", onLoadedAudioData);
+}
+
+async function playPause() {
+  if (!audio.paused) {
     audio.pause();
     buttonPlayPauseImage.setAttribute("src", "/Play_fill.svg");
 
@@ -90,6 +123,4 @@ async function playPause() {
   buttonPlayPauseImage.setAttribute("src", "/Pause_fill.svg");
 }
 
-audio.addEventListener("loadedmetadata", () => {
-  updateUI();
-});
+loadSong();
